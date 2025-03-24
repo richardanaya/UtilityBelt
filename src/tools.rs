@@ -34,7 +34,7 @@ pub async fn call_tool(url: &str, tool_name: &str, json_params: &str) -> Result<
     let _server_info = client
         .initialize(
             ClientInfo {
-                name: "mcpctl".into(),
+                name: "utilitybelt".into(),
                 version: "0.1.0".into(),
             },
             ClientCapabilities::default(),

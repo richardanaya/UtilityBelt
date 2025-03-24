@@ -27,7 +27,7 @@ pub async fn describe_endpoint(url: &str) -> Result<()> {
     let server_info = client
         .initialize(
             ClientInfo {
-                name: "mcpctl".into(),
+                name: "utilitybelt".into(),
                 version: "0.1.0".into(),
             },
             ClientCapabilities::default(),
@@ -57,15 +57,18 @@ pub async fn describe_endpoint(url: &str) -> Result<()> {
             if !tool.description.is_empty() {
                 println!("    Description: {}", tool.description);
             }
-            
+
             // Create a simple example JSON for parameters based on the schema
             let example_params = generate_example_params(&tool.input_schema);
             let escaped_params = example_params.replace("\"", "\\\"");
-            
+
             // Display example command line call
             println!("    Example call:");
-            println!("    mcpctl tools call {} {} \"{}\"", url, tool.name, escaped_params);
-            
+            println!(
+                "    utilitybelt tools call {} {} \"{}\"",
+                url, tool.name, escaped_params
+            );
+
             println!("    Schema:");
             println!(
                 "    {}",
@@ -87,13 +90,13 @@ pub async fn describe_endpoint(url: &str) -> Result<()> {
 fn generate_example_params(schema: &serde_json::Value) -> String {
     if let Some(properties) = schema.get("properties").and_then(|p| p.as_object()) {
         let mut example = serde_json::Map::new();
-        
+
         for (prop_name, prop_schema) in properties {
             if let Some(example_value) = generate_example_value(prop_schema) {
                 example.insert(prop_name.clone(), example_value);
             }
         }
-        
+
         serde_json::to_string(&example).unwrap_or_else(|_| "{}".to_string())
     } else {
         "{}".to_string()
