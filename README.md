@@ -12,7 +12,7 @@ The purpose of this tool is to load aider with context of how to call tools on a
 inside aider
 
 ```bash
-/run utilitybelt describe https://api.example.com
+/run utilitybelt describe https://mcp-example.com
 ```
 
 this should a list of command line calls to aider to use as suggestions for tools it can call.
@@ -20,7 +20,7 @@ this should a list of command line calls to aider to use as suggestions for tool
 when tools are suggested, aider should use the following format:
 
 ```bash
-/run utilitybelt tools call https://api.example.com <tool_name> <tool_params>
+/run utilitybelt tools call https://mcp-example.com <tool_name> "<tool_params_escaped_json>"
 ```
 
 ## See it work
