@@ -1,5 +1,11 @@
 # utilitybelt
 
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/3f8c6127-2c02-4103-a010-0ea5a44dcbe2" alt="Description" width="300">
+</p>
+
+
 A CLI tool for interacting with MCP endpoints for CLI based AI agents (like aider)
 
 ## Usage
