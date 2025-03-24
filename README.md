@@ -1,6 +1,6 @@
 # utilitybelt
 
-A CLI tool for interacting with MCP endpoints.
+A CLI tool for interacting with MCP endpoints for CLI based AI agents (like aider)
 
 ## Usage
 
@@ -19,3 +19,10 @@ when tools are suggested, aider should use the following format:
 ```bash
 /run utilitybelt tools call https://api.example.com <tool_name> <tool_params>
 ```
+
+## See it work
+
+Using an MCP endpoint for a calculator in aider.
+
+<img width="530" alt="Screenshot 2025-03-24 at 1 02 00 AM" src="https://github.com/user-attachments/assets/3af0d45e-c1e9-4700-abec-d48e395d999f" />
+<img width="558" alt="Screenshot 2025-03-24 at 1 02 13 AM" src="https://github.com/user-attachments/assets/32ecbe7e-8102-4b41-a165-b01685e2635d" />
