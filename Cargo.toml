@@ -2,6 +2,9 @@
 name = "mcpctl"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+authors = ["richard.anaya@gmail.com"]
+description = "A CLI tool for interacting with MCP endpoints"
 
 [dependencies]
 clap = { version = "4.4", features = ["derive"] }
