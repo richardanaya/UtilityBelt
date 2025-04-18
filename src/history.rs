@@ -3,6 +3,7 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::fs::File;
 use anyhow::Context;
 
+// Ce module lit et affiche les messages récents de l'historique de conversation.
 pub async fn show_recent_messages(count: usize) -> Result<()> {
     let path = ".aider.chat.history.md";
     let file = File::open(path)
