@@ -8,7 +8,7 @@ pub async fn show_recent_messages(count: usize) -> Result<()> {
     let file = File::open(path)
         .await
         .with_context(|| format!("Could not open {}", path))?;
-    let mut reader = BufReader::new(file);
+    let reader = BufReader::new(file);
 
     let mut messages = Vec::<String>::new();
     let mut current = String::new();
