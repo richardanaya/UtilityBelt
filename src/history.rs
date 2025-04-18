@@ -31,15 +31,23 @@ pub async fn show_recent_messages(count: usize) -> Result<()> {
             continue;
         }
 
-        if trimmed.starts_with('>') {
-            let content = trimmed.trim_start_matches('>').trim_start();
-            if !content.is_empty() {
-                if !current.is_empty() {
-                    current.push('\n');
-                }
-                current.push_str(content);
-            }
+        // alle Inhaltszeilen einsammeln (egal ob sie mit '>' beginnen)
+        // – Überschriften (#…) bleiben weiterhin ausgespart
+        let content = if trimmed.starts_with('>') {
+            trimmed.trim_start_matches('>').trim_start()
+        } else {
+            trimmed
+        };
+
+        // Meta‑Zeilen wie „Tokens:“ sowie leere Zeilen ignorieren
+        if content.is_empty() || content.starts_with("Tokens:") {
+            continue;
         }
+
+        if !current.is_empty() {
+            current.push('\n');
+        }
+        current.push_str(content);
     }
 
     if !current.trim().is_empty() {
