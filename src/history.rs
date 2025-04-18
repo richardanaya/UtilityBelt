@@ -51,9 +51,11 @@ pub async fn show_recent_messages(count: usize) -> Result<()> {
 
     // Imprime los N últimos
     let start = messages.len().saturating_sub(count);
-    for msg in &messages[start..] {
-        println!("{}\n", msg);
+    println!("<<<<<<<<<< HISTORY");
+    for (idx, msg) in messages[start..].iter().enumerate() {
+        println!("Message {}:\n{}\n", idx + 1, msg);
     }
+    println!(">>>>>>>>>> HISTORY");
 
     Ok(())
 }
