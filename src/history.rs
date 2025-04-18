@@ -1,9 +1,13 @@
 use anyhow::Result;
 use tokio::io::{AsyncBufReadExt, BufReader};
-use std::fs::File;
+use tokio::fs::File;
+use anyhow::Context;
 
 pub async fn show_recent_messages(count: usize) -> Result<()> {
-    let file = File::open(".aider.chat.history.md")?;
+    let path = ".aider.chat.history.md";
+    let file = File::open(path)
+        .await
+        .with_context(|| format!("Could not open {}", path))?;
     let mut reader = BufReader::new(file);
 
     let mut messages = Vec::<String>::new();
