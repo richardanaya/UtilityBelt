@@ -27,6 +27,9 @@ pub async fn show_recent_messages(count: usize) -> Result<()> {
             if !text.is_empty() {
                 messages.push(("USER".into(), text.to_string()));
             }
+        } else if trimmed.starts_with("Hey ! Que puis‑je faire pour vous ?") {
+            // Ignore this specific assistant greeting
+            continue;
         } else {
             // everything else is an ASSISTANT message
             messages.push(("ASSISTANT".into(), trimmed.to_string()));
