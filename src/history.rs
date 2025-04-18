@@ -26,15 +26,23 @@ pub async fn show_recent_messages(count: usize) -> Result<()> {
             }
             current.clear();
 
-            // Determina el rol según el encabezado de nivel 4
-            let heading = trimmed.trim_start_matches('#').trim().to_lowercase();
-            role = if heading.contains("assistant") {
-                "ASSISTANT".to_string()
-            } else if heading.contains("user") {
-                "USER".to_string()
+            // Cuenta cuántos '#' inician la línea
+            let hashes = trimmed.chars().take_while(|&c| c == '#').count();
+
+            if hashes == 4 {
+                // una línea que empieza con exactamente 4 hashes marca un mensaje de USER
+                role = "USER".to_string();
             } else {
-                "MESSAGE".to_string()
-            };
+                // para el resto seguimos mirando el texto del encabezado
+                let heading = trimmed.trim_start_matches('#').trim().to_lowercase();
+                role = if heading.contains("assistant") {
+                    "ASSISTANT".to_string()
+                } else if heading.contains("user") {
+                    "USER".to_string()
+                } else {
+                    "MESSAGE".to_string()
+                };
+            }
 
             // no copiamos el encabezado al contenido, solo cambiamos el rol
             continue;
@@ -59,11 +67,11 @@ pub async fn show_recent_messages(count: usize) -> Result<()> {
 
     // Imprime los N últimos
     let start = messages.len().saturating_sub(count);
-    println!("<<<<<<<<<< HISTORY");
+    println!("<<<<<<<<<< AGENT_CONVERSATION_HISTORY");
     for (role, msg) in &messages[start..] {
         println!("{}:\n{}\n", role, msg);
     }
-    println!(">>>>>>>>>> HISTORY");
+    println!(">>>>>>>>>> AGENT_CONVERSATION_HISTORY");
 
     Ok(())
 }
