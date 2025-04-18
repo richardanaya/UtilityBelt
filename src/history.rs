@@ -10,45 +10,27 @@ pub async fn show_recent_messages(count: usize) -> Result<()> {
         .with_context(|| format!("Could not open {}", path))?;
     let reader = BufReader::new(file);
 
-    let mut messages: Vec<(String, String)> = Vec::new();   // (role, content)
-    let mut role = String::from("MESSAGE");
+    let mut messages: Vec<String> = Vec::new();   // raw message contents in order
     let mut current = String::new();
     let mut lines = reader.lines();
 
     while let Some(line) = lines.next_line().await? {
         let trimmed = line.trim_start();
 
-        // Empieza una nueva sección al ver cualquier encabezado '#'
-        if trimmed.starts_with('#') {
-            // Guarda el mensaje acumulado antes de iniciar uno nuevo
+        // a "####" line marks the start of a new USER prompt
+        if trimmed.starts_with("####") {
             if !current.trim().is_empty() {
-                messages.push((role.clone(), current.trim().to_owned()));
+                messages.push(current.trim().to_owned());
+                current.clear();
             }
-            current.clear();
+            continue;                       // skip the heading itself
+        }
 
-            // Cuenta cuántos '#' inician la línea
-            let hashes = trimmed.chars().take_while(|&c| c == '#').count();
-
-            if hashes == 4 {
-                // una línea que empieza con exactamente 4 hashes marca un mensaje de USER
-                role = "USER".to_string();
-            } else {
-                // para el resto seguimos mirando el texto del encabezado
-                let heading = trimmed.trim_start_matches('#').trim().to_lowercase();
-                role = if heading.contains("assistant") {
-                    "ASSISTANT".to_string()
-                } else if heading.contains("user") {
-                    "USER".to_string()
-                } else {
-                    "MESSAGE".to_string()
-                };
-            }
-
-            // no copiamos el encabezado al contenido, solo cambiamos el rol
+        // ignore any other heading lines that start with '#' (1–3, 5+ hashes)
+        if trimmed.starts_with('#') {
             continue;
         }
 
-        // Agrega líneas que empiezan con '>'
         if trimmed.starts_with('>') {
             let content = trimmed.trim_start_matches('>').trim_start();
             if !content.is_empty() {
@@ -60,15 +42,14 @@ pub async fn show_recent_messages(count: usize) -> Result<()> {
         }
     }
 
-    // Guarda el último mensaje, si existe
     if !current.trim().is_empty() {
-        messages.push((role.clone(), current.trim().to_owned()));
+        messages.push(current.trim().to_owned());
     }
 
-    // Imprime los N últimos
     let start = messages.len().saturating_sub(count);
     println!("<<<<<<<<<< AGENT_CONVERSATION_HISTORY");
-    for (role, msg) in &messages[start..] {
+    for (idx, msg) in messages[start..].iter().enumerate() {
+        let role = if (start + idx) % 2 == 0 { "USER" } else { "ASSISTANT" };
         println!("{}:\n{}\n", role, msg);
     }
     println!(">>>>>>>>>> AGENT_CONVERSATION_HISTORY");
