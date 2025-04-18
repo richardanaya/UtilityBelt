@@ -10,7 +10,8 @@ pub async fn show_recent_messages(count: usize) -> Result<()> {
         .with_context(|| format!("Could not open {}", path))?;
     let reader = BufReader::new(file);
 
-    let mut messages = Vec::<String>::new();
+    let mut messages: Vec<(String, String)> = Vec::new();   // (role, content)
+    let mut role = String::from("MESSAGE");
     let mut current = String::new();
     let mut lines = reader.lines();
 
@@ -19,16 +20,23 @@ pub async fn show_recent_messages(count: usize) -> Result<()> {
 
         // Empieza una nueva sección al ver cualquier encabezado '#'
         if trimmed.starts_with('#') {
+            // Guarda el mensaje acumulado antes de iniciar uno nuevo
             if !current.trim().is_empty() {
-                messages.push(current.trim().to_owned());
+                messages.push((role.clone(), current.trim().to_owned()));
             }
             current.clear();
 
-            // Solo los encabezados de nivel 4 son parte del propio mensaje
-            if trimmed.starts_with("####") {
-                let heading = trimmed.trim_start_matches('#').trim();
-                current.push_str(heading);
-            }
+            // Determina el rol según el encabezado de nivel 4
+            let heading = trimmed.trim_start_matches('#').trim().to_lowercase();
+            role = if heading.contains("assistant") {
+                "ASSISTANT".to_string()
+            } else if heading.contains("user") {
+                "USER".to_string()
+            } else {
+                "MESSAGE".to_string()
+            };
+
+            // no copiamos el encabezado al contenido, solo cambiamos el rol
             continue;
         }
 
@@ -46,14 +54,14 @@ pub async fn show_recent_messages(count: usize) -> Result<()> {
 
     // Guarda el último mensaje, si existe
     if !current.trim().is_empty() {
-        messages.push(current.trim().to_owned());
+        messages.push((role.clone(), current.trim().to_owned()));
     }
 
     // Imprime los N últimos
     let start = messages.len().saturating_sub(count);
     println!("<<<<<<<<<< HISTORY");
-    for (idx, msg) in messages[start..].iter().enumerate() {
-        println!("Message {}:\n{}\n", idx + 1, msg);
+    for (role, msg) in &messages[start..] {
+        println!("{}:\n{}\n", role, msg);
     }
     println!(">>>>>>>>>> HISTORY");
 
