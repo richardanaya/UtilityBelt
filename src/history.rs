@@ -17,13 +17,19 @@ pub async fn show_recent_messages(count: usize) -> Result<()> {
     while let Some(line) = lines.next_line().await? {
         let trimmed = line.trim_start();
 
-        // a "####" line marks the start of a new USER prompt
+        // "#### …" marque un nouveau message USER ; on garde son contenu
         if trimmed.starts_with("####") {
+            // clôturer l’éventuel message précédent
             if !current.trim().is_empty() {
                 messages.push(current.trim().to_owned());
                 current.clear();
             }
-            continue;                       // skip the heading itself
+            // texte du prompt USER (= titre sans les #)
+            let user_line = trimmed.trim_start_matches('#').trim();
+            if !user_line.is_empty() {
+                current.push_str(user_line);
+            }
+            continue;
         }
 
         // ignore any other heading lines that start with '#' (1–3, 5+ hashes)
@@ -31,13 +37,12 @@ pub async fn show_recent_messages(count: usize) -> Result<()> {
             continue;
         }
 
-        // alle Inhaltszeilen einsammeln (egal ob sie mit '>' beginnen)
-        // – Überschriften (#…) bleiben weiterhin ausgespart
-        let content = if trimmed.starts_with('>') {
-            trimmed.trim_start_matches('>').trim_start()
-        } else {
-            trimmed
-        };
+        // ignorer toute ligne méta ou citation (> …)
+        if trimmed.starts_with('>') {
+            continue;
+        }
+
+        let content = trimmed;
 
         // Meta‑Zeilen wie „Tokens:“ sowie leere Zeilen ignorieren
         if content.is_empty() || content.starts_with("Tokens:") {
