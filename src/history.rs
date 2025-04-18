@@ -33,9 +33,22 @@ pub async fn show_recent_messages(count: usize) -> Result<()> {
         }
     }
 
-    let start = messages.len().saturating_sub(count);
+    // Regrouper les lignes consécutives partageant le même rôle
+    let mut grouped: Vec<(String, String)> = Vec::new();
+    for (role, msg) in messages.into_iter() {
+        if let Some((last_role, last_msg)) = grouped.last_mut() {
+            if last_role == &role {
+                last_msg.push('\n');
+                last_msg.push_str(&msg);
+                continue;
+            }
+        }
+        grouped.push((role, msg));
+    }
+
+    let start = grouped.len().saturating_sub(count);
     println!("<<<<<<<<<< AGENT_CONVERSATION_HISTORY");
-    for (role, msg) in &messages[start..] {
+    for (role, msg) in &grouped[start..] {
         println!("{}:\n{}\n", role, msg);
     }
     println!(">>>>>>>>>> AGENT_CONVERSATION_HISTORY");
