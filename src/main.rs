@@ -3,6 +3,7 @@ use clap::{Parser, Subcommand};
 
 mod describe;
 mod tools;
+mod history;
 
 #[derive(Parser)]
 #[command(author, version, about = "MCP control utility")]
@@ -17,6 +18,12 @@ enum Commands {
     Describe {
         /// URL to describe
         url: String,
+    },
+
+    /// Show the last N log messages from .aider.chat.history.md
+    History {
+        /// How many recent messages to show
+        count: usize,
     },
 
     /// Call a tool with the given parameters
@@ -48,6 +55,7 @@ async fn main() -> Result<()> {
 
     match &cli.command {
         Commands::Describe { url } => describe::describe_endpoint(url).await,
+        Commands::History { count } => history::show_recent_messages(*count).await,
         Commands::Tools { tool_command } => match tool_command {
             ToolCommands::Call {
                 url,
